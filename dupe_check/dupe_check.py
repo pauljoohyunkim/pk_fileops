@@ -4,6 +4,7 @@ import os
 from sys import argv, exit
 from hasher.hasher import sha256_hexdigest
 from tqdm import tqdm
+from gc import collect
 
 def main():
     argc = len(argv)
@@ -27,6 +28,9 @@ def main():
                 if not sha256digest:
                     continue
                 file_digest_pair_list.append((filename, sha256digest))
+    
+    del dirlist
+    collect()
 
     print("Processing the file hash list.")
     # Process the list such that it creates a dictionary of the form hexdigest:[file path]
@@ -36,9 +40,12 @@ def main():
             hash_to_filename[hexdigest].append(filename)
         else:
             hash_to_filename[hexdigest] = [filename]
+
+    del file_digest_pair_list
+    collect()
     
     # Show the entries that are duplicates only.
-    for key, value in tqdm(hash_to_filename.items()):
+    for key, value in hash_to_filename.items():
         if len(value) == 1:
             continue
         print(value) 
