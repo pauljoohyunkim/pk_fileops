@@ -13,6 +13,7 @@ def main():
     parser = ArgumentParser(description="Checks for duplicate files by comparing hashes")
     parser.add_argument("directory", nargs="*")
     parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
+    parser.add_argument("-a", "--absolute", help="Output as absolute paths", action="store_true")
     args = parser.parse_args()
 
     verbose = False
@@ -20,7 +21,14 @@ def main():
         verbose = True
         print("Verbose output enabled.")
 
-    progresser = tqdm if verbose else lambda x : x
+    absolute = False
+    if args.absolute:
+        absolute = True
+        if verbose:
+            print("Absolute paths enabled")
+
+    progresser = tqdm if verbose else (lambda x : x)
+    pather = (lambda x : os.path.abspath(x)) if absolute else (lambda x : x)
 
     if argc == 1 or args.directory == []:
         parser.print_usage()
@@ -35,7 +43,7 @@ def main():
     for dirname in dirlist:
         for root, dirs, files in progresser(os.walk(dirname)):
             for file in files:
-                filename = os.path.join(root, file)
+                filename = pather(os.path.join(root, file))
                 sha256digest = sha256_hexdigest(filename)
                 # Check if there was error.
                 if not sha256digest:

@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "dupe_check.dupe_check",
-            "args": ["."],
+            "args": [".", "-h"],
             "justMyCode": true
         }
     ]
