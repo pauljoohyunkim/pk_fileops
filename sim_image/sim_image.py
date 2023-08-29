@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from sys import argv, exit
 from tqdm import tqdm
 from gc import collect
+from itertools import combinations
 from sim_image.image_file import image_with_pil
 
 def main():
@@ -18,10 +19,10 @@ def main():
         parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
         parser.add_argument("-a", "--absolute", help="Output as absolute paths", action="store_true")
         parser.add_argument("-o", "--output", help="Output the result to the specified file.", nargs=1)
-        parser.add_argument("-t", "--threshold", help="Threshold as to what constitutes as \"similar\" (min: 0, max: 64)", nargs=1, type=int)
+        parser.add_argument("-t", "--threshold", help="Threshold as to what constitutes as \"similar\" (min: 0, max: 64, default: 5)", nargs=1, type=int)
         args = parser.parse_args()
 
-        threshold=32
+        threshold=5
         if args.threshold:
             threshold = args.threshold[0]
 
@@ -71,6 +72,19 @@ def main():
 
         if verbose:
             print("Processing the file hash list.")
+        # Process the list such that pairwise similar images are in a list of the form
+        # [((Image1Path, Image1Hash), (Image2Path, Image2Hash))]
+        similar_pairs = []
+        for tuple1, tuple2 in progresser(combinations(file_digest_pair_list, 2)):
+            if tuple1[1] - tuple2[1] <= threshold:
+                similar_pairs.append((tuple1, tuple2))
+        
+        del file_digest_pair_list
+        collect()
+
+        for pair in similar_pairs:
+            print(f"{pair[0][0]};{pair[1][0]}")
+        '''
         # Process the list such that it creates a dictionary of the form hexdigest:[file path]
         hash_to_filename = dict()
         for filename, hexdigest in progresser(file_digest_pair_list):
@@ -96,6 +110,7 @@ def main():
                 if len(value) == 1:
                     continue
                 print(';'.join(value))
+        '''
     except KeyboardInterrupt:
         exit(2)
 
