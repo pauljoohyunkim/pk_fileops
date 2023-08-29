@@ -62,7 +62,7 @@ def main():
     for key, value in hash_to_filename.items():
         if len(value) == 1:
             continue
-        print(value) 
+        print(';'.join(value))
 
 
 if __name__ == "__main__":
