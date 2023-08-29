@@ -8,8 +8,8 @@
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
-            "module": "dupe_check.dupe_check",
-            "args": ["-o", "test.txt", "."],
+            "module": "sim_image.sim_image",
+            "args": ["-t", "34", "."],
             "justMyCode": true
         }
     ]

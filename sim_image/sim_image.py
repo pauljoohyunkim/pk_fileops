@@ -18,7 +18,12 @@ def main():
         parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
         parser.add_argument("-a", "--absolute", help="Output as absolute paths", action="store_true")
         parser.add_argument("-o", "--output", help="Output the result to the specified file.", nargs=1)
+        parser.add_argument("-t", "--threshold", help="Threshold as to what constitutes as \"similar\" (min: 0, max: 64)", nargs=1, type=int)
         args = parser.parse_args()
+
+        threshold=32
+        if args.threshold:
+            threshold = args.threshold[0]
 
         verbose = False
         if args.verbose:
