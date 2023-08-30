@@ -95,6 +95,11 @@ def main():
                 if len(value) == 1:
                     continue
                 print(';'.join(value))
+        
+        if mergedir:
+            if not os.path.isdir(mergedir):
+                os.mkdir(mergedir)
+            
     except KeyboardInterrupt:
         exit(2)
 
