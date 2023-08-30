@@ -1,2 +1,2 @@
-pk-fileops==0.3.0
+pk-fileops==0.4.0
 tqdm==4.66.1
