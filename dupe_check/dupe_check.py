@@ -15,7 +15,8 @@ def main():
         parser.add_argument("directory", nargs="*")
         parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
         parser.add_argument("-a", "--absolute", help="Output as absolute paths", action="store_true")
-        parser.add_argument("-o", "--output", help="Output the result to the specified file.", nargs=1)
+        parser.add_argument("-o", "--output", help="Output the result to the specified file", nargs=1)
+        parser.add_argument("-m", "--merge", help="Collect all the files to the specified directory", nargs=1)
         args = parser.parse_args()
 
         verbose = False
@@ -34,6 +35,12 @@ def main():
             outputfile = args.output[0]
             if verbose:
                 print(f"Outputting the result to {outputfile}")
+        
+        mergedir = None
+        if args.merge:
+            mergedir = args.merge[0]
+            if verbose:
+                print(f"Collect all the files to {mergedir}")
 
         progresser = tqdm if verbose else (lambda x : x)
         pather = (lambda x : os.path.abspath(x)) if absolute else (lambda x : x)
