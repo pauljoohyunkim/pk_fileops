@@ -1,2 +1,6 @@
-pk-fileops==0.4.0
+ImageHash==4.3.1
+numpy==1.25.2
+Pillow==10.0.0
+PyWavelets==1.4.1
+scipy==1.11.2
 tqdm==4.66.1
