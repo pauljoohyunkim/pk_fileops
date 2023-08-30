@@ -18,6 +18,7 @@ def main():
         parser.add_argument("directory", nargs="*")
         parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
         parser.add_argument("-a", "--absolute", help="Output as absolute paths", action="store_true")
+        parser.add_argument("-p", "--pairwise", help="Print out a list of \"pairwise similar\" images", action="store_true")
         parser.add_argument("-o", "--output", help="Output the result to the specified file.", nargs=1)
         parser.add_argument("-t", "--threshold", help="Threshold as to what constitutes as \"similar\" (min: 0, max: 64, default: 5)", nargs=1, type=int)
         args = parser.parse_args()
@@ -35,7 +36,13 @@ def main():
         if args.absolute:
             absolute = True
             if verbose:
-                print("Absolute paths enabled")
+                print("Absolute paths enabled.")
+
+        pairwise = False
+        if args.pairwise:
+            pairwise = True
+            if verbose:
+                print("Outputting pairwise similar images.")
         
         outputfile = None
         if args.output:
@@ -77,40 +84,37 @@ def main():
         similar_pairs = []
         for tuple1, tuple2 in progresser(combinations(file_digest_pair_list, 2)):
             if tuple1[1] - tuple2[1] <= threshold:
-                similar_pairs.append((tuple1, tuple2))
+                similar_pairs.append((tuple1[0], tuple2[0]))
         
         del file_digest_pair_list
         collect()
 
-        for pair in similar_pairs:
-            print(f"{pair[0][0]};{pair[1][0]}")
-        '''
-        # Process the list such that it creates a dictionary of the form hexdigest:[file path]
-        hash_to_filename = dict()
-        for filename, hexdigest in progresser(file_digest_pair_list):
-            if hexdigest in hash_to_filename.keys():
-                hash_to_filename[hexdigest].append(filename)
-            else:
-                hash_to_filename[hexdigest] = [filename]
-
-        del file_digest_pair_list
-        collect()
+        if pairwise:
+            for pair in similar_pairs:
+                print(f"{pair[0]};{pair[1]}")
+            exit(0)
         
-        # Show the entries that are duplicates only.
-        if outputfile:
-            with open(outputfile, "a") as file:
-                for key, value in hash_to_filename.items():
-                    if len(value) == 1:
-                        continue
-                    line = ';'.join(value)
-                    print(line)
-                    file.write(line + "\n")
-        else:
-            for key, value in hash_to_filename.items():
-                if len(value) == 1:
-                    continue
-                print(';'.join(value))
-        '''
+        # For default, non-pairwise option, partitioning to "similar images"
+        # Type: [{Image}]
+        if verbose:
+            print("Linking pairwise list into partitions")
+        partition_of_images = []
+        for pair in progresser(similar_pairs):
+            added = False
+            for partition in partition_of_images:
+                if pair[0] in partition or pair[1] in partition:
+                    partition.add(pair[0])
+                    partition.add(pair[1])
+                    added = True
+                    break
+            if added:
+                continue
+            partition_of_images.append({pair[0],pair[1]})
+        
+        for partition in partition_of_images:
+            line = ';'.join(partition)
+            print(line)
+        
     except KeyboardInterrupt:
         exit(2)
 
